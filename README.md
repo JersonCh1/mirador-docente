@@ -13,12 +13,27 @@ La evaluación se ancla en dos marcos pedagógicos:
 1. **MINEDU – Marco de Buen Desempeño Docente (MBDD)** (Perú).
 2. **OECD / TALIS – tres dimensiones de calidad de la enseñanza** (internacional).
 
+![Dashboard del docente](docs/teacher-dashboard.png)
+
 > **Regla de oro:** cada juicio cualitativo viene con (a) un timestamp y (b) la
 > cita textual exacta de la transcripción que lo respalda. Si no hay evidencia
 > citable, no se afirma. La validación de citas se hace **por código**
 > (`analysis/validator.py`), no con otro LLM: cada cita debe existir
 > literalmente en un segmento de la transcripción, o se descarta como
 > alucinación.
+
+---
+
+## Para el grupo — empezar a contribuir
+
+1. Clona: `git clone https://github.com/JersonCh1/mirador-docente.git`
+2. Levanta backend y frontend siguiendo **"Cómo correrlo en local"** (abajo).
+   Corre **sin API keys** gracias a los proveedores `fake`.
+3. El **contrato JSON** (`backend/app/schemas.py` ↔ `frontend/src/types.ts`) es
+   sagrado: no cambies un campo sin avisar al equipo.
+4. Cada quien toma un frente independiente (ver costuras en la tabla de abajo):
+   transcripción real, métricas, rúbricas/prompt, frontend, o la clase de demo.
+   Todo está detrás de interfaces, así que se trabaja en paralelo sin pisarse.
 
 ---
 
