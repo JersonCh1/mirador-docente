@@ -15,12 +15,22 @@ import type {
 import sampleSession from "../mocks/sample_session.json";
 
 const API_BASE = (import.meta.env.VITE_API_BASE ?? "").trim();
+const FORCE_MOCK = (import.meta.env.VITE_USE_MOCK ?? "").trim() === "1";
 
 /** El mock canónico, tipado contra el contrato. */
 const MOCK: Session = sampleSession as unknown as Session;
 
-/** ¿Estamos forzados a modo mock por configuración (sin API_BASE)? */
+/**
+ * ¿Modo mock?
+ * - Forzado con VITE_USE_MOCK=1.
+ * - En desarrollo sin VITE_API_BASE: mock para trabajar standalone.
+ * - En producción (build): NUNCA mock por defecto — usa el API same-origin
+ *   (API_BASE vacío => rutas relativas /api/...). Si el backend falla, cada
+ *   función cae al mock por su try/catch, así el sitio nunca queda en blanco.
+ */
 export function isMockMode(): boolean {
+  if (FORCE_MOCK) return true;
+  if (import.meta.env.PROD) return false;
   return API_BASE.length === 0;
 }
 
