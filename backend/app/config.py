@@ -47,6 +47,15 @@ class Settings(BaseSettings):
     LLM_MODEL: str = "claude-sonnet-4-6"
     LLM_TEMPERATURE: float = 0.2
 
+    # --- Whisper local (transcripción real sin key) ---
+    WHISPER_MODEL_SIZE: str = "small"  # tiny|base|small|medium|large-v3
+    WHISPER_DEVICE: str = "cpu"        # cpu | cuda
+    WHISPER_COMPUTE_TYPE: str = "int8"  # int8 (cpu) | float16 (gpu)
+
+    # --- Ollama local (LLM real sin key) ---
+    OLLAMA_MODEL: str = "llama3.1"
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+
     # --- Marcos pedagógicos activos (csv, en orden) ---
     ACTIVE_FRAMEWORKS: str = "minedu_mbdd,oecd_talis"
 

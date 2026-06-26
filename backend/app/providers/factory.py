@@ -21,6 +21,15 @@ def get_transcription_provider(settings: Settings | None = None) -> Transcriptio
         from .transcription.assemblyai import AssemblyAIProvider
 
         return AssemblyAIProvider(api_key=settings.ASSEMBLYAI_API_KEY)
+    if provider == "whisper":
+        # Local, real, SIN API key (faster-whisper).
+        from .transcription.whisper import WhisperTranscriptionProvider
+
+        return WhisperTranscriptionProvider(
+            model_size=settings.WHISPER_MODEL_SIZE,
+            device=settings.WHISPER_DEVICE,
+            compute_type=settings.WHISPER_COMPUTE_TYPE,
+        )
 
     raise ValueError(f"TRANSCRIPTION_PROVIDER desconocido: {provider!r}")
 
@@ -39,6 +48,15 @@ def get_llm_provider(settings: Settings | None = None) -> LLMProvider:
         return ClaudeProvider(
             api_key=settings.ANTHROPIC_API_KEY,
             model=settings.LLM_MODEL,
+            temperature=settings.LLM_TEMPERATURE,
+        )
+    if provider == "ollama":
+        # Local, real, SIN API key (servidor de Ollama).
+        from .llm.ollama import OllamaProvider
+
+        return OllamaProvider(
+            model=settings.OLLAMA_MODEL,
+            base_url=settings.OLLAMA_BASE_URL,
             temperature=settings.LLM_TEMPERATURE,
         )
 
