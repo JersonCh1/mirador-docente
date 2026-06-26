@@ -13,6 +13,9 @@ La evaluación se ancla en dos marcos pedagógicos:
 1. **MINEDU – Marco de Buen Desempeño Docente (MBDD)** (Perú).
 2. **OECD / TALIS – tres dimensiones de calidad de la enseñanza** (internacional).
 
+**🚀 En vivo:** https://mirador-docente-production.up.railway.app
+(corre con proveedores `fake` — pipeline funcional sin keys)
+
 ![Dashboard del docente](docs/teacher-dashboard.png)
 
 > **Regla de oro:** cada juicio cualitativo viene con (a) un timestamp y (b) la
@@ -162,7 +165,36 @@ muestreo de frames para la `visual_timeline`.
 
 ---
 
-## Deploy (Railway)
+## Deploy (Railway) — YA DESPLEGADO
+
+El proyecto **ya está en Railway** (proyecto `mirador-docente`, un solo servicio
+que sirve API + frontend desde la misma URL).
+
+- **URL:** https://mirador-docente-production.up.railway.app
+- Build vía **`Dockerfile`** multi-stage en la raíz (Node build del frontend →
+  `dist` servido por FastAPI; runtime Python 3.11 con **ffmpeg**). Railway lo
+  detecta solo; usa el `$PORT` inyectado.
+- Cada `git push` a `main` puede redeployarse, o manual: `railway up`.
+
+### Activar transcripción/análisis REAL en producción
+
+Por defecto corre con proveedores `fake` (sin keys). Para activar lo real, agrega
+las variables en Railway (dashboard del servicio → Variables, o por CLI):
+
+```bash
+railway variables --set TRANSCRIPTION_PROVIDER=assemblyai \
+                  --set LLM_PROVIDER=claude \
+                  --set ASSEMBLYAI_API_KEY=tu_key \
+                  --set ANTHROPIC_API_KEY=sk-ant-...
+railway redeploy
+```
+
+> ⚠️ **SQLite es efímero en Railway:** las sesiones se pierden si el contenedor
+> reinicia/redeploya. Para la demo está bien (pre-procesa la clase). Para
+> persistir, monta un volumen de Railway en `app.db` o migra a Postgres (la
+> lógica ya está detrás del `SessionRepository`).
+
+### Notas de deploy (referencia)
 
 - `backend/Procfile`: `web: uvicorn app.main:app --host 0.0.0.0 --port $PORT`
   (usa el `$PORT` que inyecta Railway).
