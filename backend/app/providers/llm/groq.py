@@ -19,7 +19,7 @@ class GroqProvider(LLMProvider):
         api_key: str,
         model: str = "llama-3.1-70b-versatile",
         temperature: float = 0.2,
-        max_tokens: int = 4000,
+        max_tokens: int = 5000,
     ):
         if not api_key:
             raise RuntimeError(

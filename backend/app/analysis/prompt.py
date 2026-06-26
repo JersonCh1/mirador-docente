@@ -8,9 +8,9 @@ import json
 
 # Groq free tier: 12k TPM. Input ~6k + output 4k = 10k total.
 # Framework JSON + sistema ≈ 3k tokens (12k chars). Transcript: hasta 6k chars.
-_MAX_TRANSCRIPT_CHARS = 14_000   # límite total del bloque de transcript
+_MAX_TRANSCRIPT_CHARS = 16_000   # límite total del bloque de transcript
 _WINDOW_SECS = 180               # ventana de tiempo: cada 3 minutos, 1 muestra
-_CHARS_PER_WINDOW = 400          # chars que se muestran por ventana
+_CHARS_PER_WINDOW = 500          # chars que se muestran por ventana
 
 
 def _split_into_windows(segments: list[dict]) -> list[dict]:
@@ -100,39 +100,47 @@ def build_prompt(
     objectives_json = json.dumps(objectives or [], ensure_ascii=False)
     transcript_block = _transcript_lines(transcript)
 
+    total_mins = (transcript or {}).get('segments', [{}])[-1].get('end', 0) / 60
+    third = total_mins / 3
+
     return f"""Eres un evaluador pedagógico experto en formación docente. Analizas la
-grabación de UNA clase y produces retroalimentación formativa con tono de
-coaching (acompañamiento, no sanción), SIEMPRE anclada en evidencia concreta.
+grabación COMPLETA de UNA clase y produces retroalimentación formativa con tono
+de coaching (acompañamiento, no sanción), anclada en evidencia de TODA la clase.
 
-REGLAS ESTRICTAS — incumplirlas invalida el resultado:
+REGLAS OBLIGATORIAS — incumplirlas invalida el resultado:
 
-1. CITA TEXTUAL Y SEMÁNTICAMENTE RELEVANTE.
-   La `quote` de cada evidencia debe:
-   a) Ser copiada CARÁCTER POR CARÁCTER del texto de la transcripción (sin parafrasear).
-   b) Ser DIRECTAMENTE RELEVANTE a la dimensión que evidencia. NO uses una cita
-      de saludos o logística para evidenciar activación cognitiva. Si no hay cita
-      relevante, pon `evidence: []` y baja el score — no inventes conexiones.
+1. COBERTURA TOTAL DE LA CLASE (REGLA MÁS IMPORTANTE).
+   La clase dura {total_mins:.0f} minutos. Está dividida en tres tercios:
+   - INICIO: minutos 0 – {third:.0f}
+   - DESARROLLO: minutos {third:.0f} – {third*2:.0f}
+   - CIERRE: minutos {third*2:.0f} – {total_mins:.0f}
+   Para CADA dimensión observable DEBES buscar evidencia en los tres tercios.
+   Incluye MÍNIMO 2 evidencias por dimensión, de momentos distintos de la clase.
+   PROHIBIDO concentrar todas las citas en los primeros 20 minutos.
 
-2. COBERTURA DE TODA LA CLASE.
-   El transcript abarca {(transcript or {}).get('segments', [{}])[-1].get('end', 0)/60:.0f} minutos.
-   Busca evidencia en distintos momentos (inicio, desarrollo, cierre).
-   No concentres todas las citas en los primeros minutos.
+2. CITA TEXTUAL EXACTA Y SEMÁNTICAMENTE RELEVANTE.
+   Cada `quote` debe:
+   a) Copiarse CARÁCTER POR CARÁCTER del transcript (sin parafrasear ni resumir).
+   b) Ser DIRECTAMENTE relevante a la dimensión. No uses frases de saludo o
+      logística para evidenciar activación cognitiva. Si no hay cita relevante
+      en un tercio de la clase, indícalo en el `comment` pero busca en otro tercio.
 
 3. SOLO DIMENSIONES OBSERVABLES.
-   Dimensiones con `observable_from_recording: false` → emítelas con
-   `observable: false`, `score: null`, `evidence: []`.
+   Las que tienen `observable_from_recording: false` → emítelas con
+   `observable: false`, `score: null`, `evidence: []`, `summary` explicando por qué.
 
-4. SCORES DIFERENCIALES.
-   No pongas el mismo score a todas las dimensiones. Cada una merece una
-   valoración honesta: un 4 es excepcional, un 2 es claramente mejorable.
-   El `overall_score` es el promedio de las dimensiones observables.
+4. SCORES DIFERENCIALES Y HONESTOS.
+   Escala 1-4. Un 4 es excepcional, un 3 es bueno, un 2 es mejorable, un 1 es
+   ausente o muy deficiente. No pongas el mismo score a dimensiones distintas
+   si el comportamiento observado no es igual. El `overall_score` de cada marco
+   es el promedio de sus dimensiones observables, redondeado a 1 decimal.
 
-5. FORTALEZAS Y MEJORAS CON SUGERENCIAS.
-   Mínimo 3 fortalezas y 3 mejoras, cada una con detalle específico de ESTA clase
-   (no genérico). Cada mejora lleva una `suggestion` concreta y accionable.
+5. FORTALEZAS Y MEJORAS — MÍNIMO 3 DE CADA UNA.
+   Cada una debe mencionar un momento concreto de ESTA clase (no genérico).
+   Cada mejora lleva una `suggestion` específica y accionable para el docente.
 
-6. TONO. Coaching, nunca punitivo. Lenguaje en segunda persona ("el docente..." o
-   "se observa que...").
+6. OBJETIVO. Si hay objetivos declarados, calcula `objective_alignment` con el
+   porcentaje de tiempo alineado y los tramos donde hubo desvío.
 
 7. SALIDA. ÚNICAMENTE JSON válido. SIN markdown, SIN ```fences```, SIN texto extra.
 
