@@ -1,49 +1,56 @@
 {
   "framework_id": "minedu_mbdd",
-  "framework_name": "Marco de Buen Desempeño Docente (MINEDU)",
-  "source": "PENDIENTE: pegar cita oficial (RM del MINEDU, página). El texto de abajo es una PARÁFRASIS, no una cita textual.",
+  "framework_name": "Marco de Buen Desempeño Docente — MINEDU Perú",
+  "source": "Marco de Buen Desempeño Docente, MINEDU Perú (2012, actualiz. 2014). Dominio 2: Enseñanza para el aprendizaje de los estudiantes. Competencias 3, 4 y 5. Resolución Ministerial N.° 0547-2012-ED. Disponible en: https://www.minedu.gob.pe/pdf/ed/marco-de-buen-desempeno-docente.pdf",
   "verified": false,
   "dimensions": [
     {
       "dimension_id": "dominio_disciplinar",
-      "name": "Claridad y dominio disciplinar en la conducción de la clase",
-      "description": "Solidez conceptual y claridad al explicar el contenido de la sesión.",
-      "look_for": "Definiciones correctas, ejemplos pertinentes, analogías que conectan lo abstracto con lo concreto, secuencia lógica de ideas.",
+      "name": "Dominio del contenido disciplinar y claridad conceptual (Comp. 4, Desempeño 12–13)",
+      "description": "El docente demuestra conocimiento actualizado y comprensión de los conceptos fundamentales de la disciplina que enseña, y los transmite con precisión, claridad y secuencia lógica, evitando errores conceptuales.",
+      "look_for": "Definiciones correctas sin imprecisiones, ejemplos pertinentes al nivel y contexto, analogías que conectan lo abstracto con lo concreto, corrección inmediata de errores conceptuales propios o de estudiantes, secuencia lógica de ideas.",
       "observable_from_recording": true
     },
     {
       "dimension_id": "activacion_cognitiva",
-      "name": "Estrategias que promueven el razonamiento y el pensamiento crítico",
-      "description": "Acciones que empujan a los estudiantes a razonar, justificar y elaborar, más allá de la repetición.",
-      "look_for": "Preguntas abiertas, tiempo de espera tras preguntar, retos que exigen razonar, conexión con conocimientos previos.",
+      "name": "Estrategias de enseñanza que promueven el razonamiento y pensamiento crítico (Comp. 4, Desempeño 14–16)",
+      "description": "El docente utiliza estrategias y recursos que desafían a los estudiantes a razonar, justificar sus respuestas, analizar, elaborar y conectar ideas, más allá de la repetición o memorización.",
+      "look_for": "Preguntas abiertas que exigen justificación ('¿por qué?', '¿cómo lo sabes?'), tiempo de espera tras preguntar, retos que admiten múltiples estrategias, conexión explícita con conocimientos previos, invitación a elaborar y defender ideas.",
       "observable_from_recording": true
     },
     {
       "dimension_id": "verificacion_comprension",
-      "name": "Uso de la evaluación y verificación de comprensión durante la sesión",
-      "description": "Mecanismos para comprobar si los estudiantes están comprendiendo durante la clase.",
-      "look_for": "Preguntas de chequeo, solicitudes de explicar con sus palabras, monitoreo de respuestas, ajustes según la comprensión observada.",
+      "name": "Evaluación formativa y verificación de la comprensión durante la sesión (Comp. 5, Desempeño 20–22)",
+      "description": "El docente utiliza estrategias formativas para comprobar el nivel de comprensión de los estudiantes durante la clase y ajusta su enseñanza en función de las evidencias recogidas.",
+      "look_for": "Preguntas de chequeo de comprensión, solicitar que expliquen con sus propias palabras, monitoreo de respuestas de los estudiantes, retomar o aclarar cuando se detecta confusión, ajuste del ritmo o la explicación según respuestas.",
       "observable_from_recording": true
     },
     {
       "dimension_id": "clima_aula",
-      "name": "Clima de aula: respeto, motivación y manejo de la participación",
-      "description": "Ambiente socioemocional que favorece la participación y el respeto mutuo.",
-      "look_for": "Trato cálido, refuerzo positivo, manejo de la participación, ausencia de descalificaciones.",
+      "name": "Clima propicio para el aprendizaje: respeto, seguridad y participación (Comp. 3, Desempeño 8–11)",
+      "description": "El docente crea un ambiente de respeto, acogida y confianza que favorece la participación activa de los estudiantes, valorando sus aportes y gestionando adecuadamente los momentos de interacción.",
+      "look_for": "Trato respetuoso y por nombre, refuerzo positivo ante participaciones, manejo paciente de dudas o errores, ausencia de descalificaciones, invitación explícita a participar, disposición a escuchar las ideas de los estudiantes.",
       "observable_from_recording": true
     },
     {
       "dimension_id": "uso_pedagogico_tiempo",
-      "name": "Uso pedagógico y eficiente del tiempo de la sesión",
-      "description": "Aprovechamiento del tiempo de clase en función de los aprendizajes.",
-      "look_for": "Transiciones claras, foco en los objetivos, control de digresiones, ritmo adecuado.",
+      "name": "Uso pedagógico del tiempo y gestión del ritmo de la sesión (Comp. 4, Desempeño 17)",
+      "description": "El docente administra el tiempo de clase de manera que se maximice el tiempo efectivo de aprendizaje, manteniendo el foco en los objetivos y gestionando adecuadamente las transiciones y las digresiones.",
+      "look_for": "Transiciones claras y rápidas entre actividades, retorno al tema tras digresiones, distribución equilibrada entre explicación y actividad de los estudiantes, ausencia de tiempos muertos prolongados.",
+      "observable_from_recording": true
+    },
+    {
+      "dimension_id": "participacion_estudiantes",
+      "name": "Promoción de la participación activa de los estudiantes (Comp. 4, Desempeño 15–16)",
+      "description": "El docente genera oportunidades sistemáticas para que los estudiantes hablen, respondan, pregunten y construyan su aprendizaje activamente, no solo reciban información.",
+      "look_for": "Número de intervenciones de estudiantes, preguntas que invitan a participar, actividades donde los estudiantes explican o demuestran, distribución de turnos de participación entre diferentes estudiantes.",
       "observable_from_recording": true
     },
     {
       "dimension_id": "planificacion_curricular",
-      "name": "Planificación y preparación previa de la enseñanza",
-      "description": "Diseño y preparación de la sesión antes de su ejecución.",
-      "look_for": "Coherencia entre objetivos, actividades y evaluación previstos.",
+      "name": "Planificación y preparación de la enseñanza (Comp. 3, Desempeño 20 / Dominio 1)",
+      "description": "El docente diseña la sesión con coherencia entre los aprendizajes esperados, las estrategias didácticas y los instrumentos de evaluación, considerando las características y necesidades de sus estudiantes.",
+      "look_for": "Coherencia entre los objetivos declarados y las actividades desarrolladas, evidencia de preparación del material, secuencia didáctica reconocible (inicio-desarrollo-cierre).",
       "observable_from_recording": false
     }
   ]

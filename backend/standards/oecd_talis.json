@@ -1,0 +1,43 @@
+{
+  "framework_id": "oecd_talis",
+  "framework_name": "OECD/TALIS 2018 — Calidad de la enseñanza",
+  "source": "OECD Teaching and Learning International Survey (TALIS) 2018. Conceptual framework basado en Creemers & Kyriakides (2008) Dynamic Model of Educational Effectiveness. Tres dominios de calidad docente observable: classroom management, supportive climate, cognitive activation. OECD (2019), TALIS 2018 Results (Volume I). https://doi.org/10.1787/1d0bc92a-en",
+  "verified": false,
+  "dimensions": [
+    {
+      "dimension_id": "classroom_management",
+      "name": "Gestión del aula y del tiempo de aprendizaje (TALIS D1)",
+      "description": "El docente organiza el aula y administra el tiempo de manera que se maximice el tiempo efectivo dedicado al aprendizaje, minimizando interrupciones, tiempos muertos y comportamientos disruptivos.",
+      "look_for": "Instrucciones claras y eficientes, transiciones rápidas entre actividades, retorno rápido al contenido tras interrupciones, control del ritmo sin tiempos muertos, resolución eficaz de situaciones que desvían la atención.",
+      "observable_from_recording": true
+    },
+    {
+      "dimension_id": "supportive_climate",
+      "name": "Clima de apoyo socioemocional (TALIS D2)",
+      "description": "El docente establece un ambiente de confianza, respeto y apoyo mutuo en el que los estudiantes se sienten seguros para participar, preguntar y cometer errores sin temor a la humillación o la exclusión.",
+      "look_for": "Retroalimentación constructiva y respetuosa, paciencia ante el error, valoración explícita de las intervenciones de los estudiantes, lenguaje inclusivo, ausencia de sarcasmo o descalificaciones, respuesta empática ante dificultades.",
+      "observable_from_recording": true
+    },
+    {
+      "dimension_id": "cognitive_activation",
+      "name": "Activación cognitiva y demanda intelectual (TALIS D3)",
+      "description": "El docente plantea tareas, preguntas y actividades que exigen a los estudiantes pensar profundamente: razonar, comparar, justificar, relacionar ideas y aplicar conceptos a situaciones nuevas.",
+      "look_for": "Preguntas que requieren explicar el 'por qué' o el 'cómo', problemas con múltiples caminos de solución, conexión entre lo nuevo y lo conocido, invitación a debatir o cuestionar, tareas que van más allá de repetir o recordar.",
+      "observable_from_recording": true
+    },
+    {
+      "dimension_id": "feedback_quality",
+      "name": "Calidad de la retroalimentación durante la sesión (TALIS / Hattie & Timperley 2007)",
+      "description": "El docente proporciona retroalimentación oportuna, específica y orientada a la mejora que informa al estudiante sobre su desempeño actual, la brecha con el objetivo y los próximos pasos.",
+      "look_for": "Comentarios específicos (no solo 'bien' o 'mal'), indicación de qué mejorar y cómo, retroalimentación inmediata tras respuestas incorrectas o incompletas, cierre del ciclo de retroalimentación verificando que el estudiante entiende la corrección.",
+      "observable_from_recording": true
+    },
+    {
+      "dimension_id": "differentiation",
+      "name": "Atención a la diversidad y diferenciación de la enseñanza (TALIS / UDL)",
+      "description": "El docente adapta su enseñanza a las diversas necesidades, ritmos y niveles de comprensión de los estudiantes, ofreciendo apoyos adicionales o retos diferenciados cuando es necesario.",
+      "look_for": "Uso de múltiples formas de explicar el mismo concepto, atención personalizada a estudiantes con dificultades, ajuste del nivel de complejidad de las preguntas según el estudiante, reconocimiento explícito de distintos puntos de partida.",
+      "observable_from_recording": true
+    }
+  ]
+}
