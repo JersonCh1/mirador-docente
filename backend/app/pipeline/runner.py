@@ -15,6 +15,7 @@ from ..analysis.validator import validate_analysis
 from ..config import Settings, get_settings
 from ..media.audio import extract_audio
 from ..media.download import download_recording, is_remote_url
+from ..media.frames import sample_frames
 from ..metrics.runner import compute_all_metrics
 from ..providers.factory import get_llm_provider, get_transcription_provider
 from ..repository import SessionRepository
@@ -111,6 +112,16 @@ def run_pipeline(
 
         # 3) METRICS ------------------------------------------------------
         metrics = compute_all_metrics(transcript, settings)
+
+        # 3.5) FRAMES (opcional) — análisis visual del video → visual_timeline.
+        # Seam honesto: sample_frames devuelve [] si no está implementado o no hay
+        # video/ffmpeg. Nunca rompe el pipeline.
+        try:
+            visual = sample_frames(local_ref if local_ref and os.path.exists(local_ref) else None)
+        except Exception:
+            visual = []
+        metrics["visual_timeline"] = visual or []
+
         repo.save_artifact(session_id, "metrics_json", metrics)
         repo.update_status(session_id, "analyzing", 55)
 
