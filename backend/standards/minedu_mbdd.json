@@ -1,0 +1,50 @@
+{
+  "framework_id": "minedu_mbdd",
+  "framework_name": "Marco de Buen Desempeño Docente (MINEDU)",
+  "source": "PENDIENTE: pegar cita oficial (RM del MINEDU, página). El texto de abajo es una PARÁFRASIS, no una cita textual.",
+  "verified": false,
+  "dimensions": [
+    {
+      "dimension_id": "dominio_disciplinar",
+      "name": "Claridad y dominio disciplinar en la conducción de la clase",
+      "description": "Solidez conceptual y claridad al explicar el contenido de la sesión.",
+      "look_for": "Definiciones correctas, ejemplos pertinentes, analogías que conectan lo abstracto con lo concreto, secuencia lógica de ideas.",
+      "observable_from_recording": true
+    },
+    {
+      "dimension_id": "activacion_cognitiva",
+      "name": "Estrategias que promueven el razonamiento y el pensamiento crítico",
+      "description": "Acciones que empujan a los estudiantes a razonar, justificar y elaborar, más allá de la repetición.",
+      "look_for": "Preguntas abiertas, tiempo de espera tras preguntar, retos que exigen razonar, conexión con conocimientos previos.",
+      "observable_from_recording": true
+    },
+    {
+      "dimension_id": "verificacion_comprension",
+      "name": "Uso de la evaluación y verificación de comprensión durante la sesión",
+      "description": "Mecanismos para comprobar si los estudiantes están comprendiendo durante la clase.",
+      "look_for": "Preguntas de chequeo, solicitudes de explicar con sus palabras, monitoreo de respuestas, ajustes según la comprensión observada.",
+      "observable_from_recording": true
+    },
+    {
+      "dimension_id": "clima_aula",
+      "name": "Clima de aula: respeto, motivación y manejo de la participación",
+      "description": "Ambiente socioemocional que favorece la participación y el respeto mutuo.",
+      "look_for": "Trato cálido, refuerzo positivo, manejo de la participación, ausencia de descalificaciones.",
+      "observable_from_recording": true
+    },
+    {
+      "dimension_id": "uso_pedagogico_tiempo",
+      "name": "Uso pedagógico y eficiente del tiempo de la sesión",
+      "description": "Aprovechamiento del tiempo de clase en función de los aprendizajes.",
+      "look_for": "Transiciones claras, foco en los objetivos, control de digresiones, ritmo adecuado.",
+      "observable_from_recording": true
+    },
+    {
+      "dimension_id": "planificacion_curricular",
+      "name": "Planificación y preparación previa de la enseñanza",
+      "description": "Diseño y preparación de la sesión antes de su ejecución.",
+      "look_for": "Coherencia entre objetivos, actividades y evaluación previstos.",
+      "observable_from_recording": false
+    }
+  ]
+}

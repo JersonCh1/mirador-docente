@@ -14,6 +14,7 @@ from ..analysis.analyzer import Analyzer
 from ..analysis.validator import validate_analysis
 from ..config import Settings, get_settings
 from ..media.audio import extract_audio
+from ..media.download import download_recording, is_remote_url
 from ..metrics.runner import compute_all_metrics
 from ..providers.factory import get_llm_provider, get_transcription_provider
 from ..repository import SessionRepository
@@ -79,8 +80,18 @@ def run_pipeline(
     try:
         # 1) INGEST -------------------------------------------------------
         repo.update_status(session_id, "transcribing", 5)
-        audio_path = recording_ref
-        if recording_ref and os.path.exists(recording_ref):
+        local_ref = recording_ref
+
+        # Si es una URL remota (Drive/Meet/directa) y hay un transcriptor REAL,
+        # la descargamos a disco para procesar la grabación de verdad. En modo
+        # fake no se descarga: el FakeProvider ignora el audio (demo sin keys).
+        if is_remote_url(recording_ref) and settings.TRANSCRIPTION_PROVIDER.lower() != "fake":
+            local_ref = download_recording(recording_ref)
+            repo.update_recording_ref(session_id, local_ref)
+            repo.update_status(session_id, "transcribing", 10)
+
+        audio_path = local_ref
+        if local_ref and os.path.exists(local_ref):
             out = os.path.join(
                 tempfile.gettempdir(), f"mirador_{session_id}.wav"
             )
@@ -88,9 +99,9 @@ def run_pipeline(
             # si ffmpeg falla (archivo no-video, corrupto, etc.) seguimos con la
             # ref original. El FakeProvider la ignora; AssemblyAI acepta video.
             try:
-                audio_path = extract_audio(recording_ref, out)
+                audio_path = extract_audio(local_ref, out)
             except Exception:
-                audio_path = recording_ref
+                audio_path = local_ref
 
         # 2) TRANSCRIBE ---------------------------------------------------
         transcriber = get_transcription_provider(settings)

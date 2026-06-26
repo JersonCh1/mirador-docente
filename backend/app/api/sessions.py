@@ -23,6 +23,7 @@ from fastapi.responses import FileResponse
 
 from ..config import Settings
 from ..db import SessionLocal
+from ..media.download import UPLOADS_DIR
 from ..pipeline.runner import run_pipeline
 from ..repository import SessionRepository
 from ..schemas import (
@@ -34,9 +35,6 @@ from ..schemas import (
 from .deps import get_repo, get_settings
 
 router = APIRouter()
-
-UPLOADS_DIR = os.path.join(os.getcwd(), "uploads")
-os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 
 def _run_pipeline_bg(session_id: str, recording_ref: str | None, settings: Settings) -> None:
@@ -93,12 +91,16 @@ async def create_session(
         objectives = _parse_objectives(objectives_raw)
 
         upload = form.get("file")
+        url_field = str(form.get("url", "")).strip()
         if upload is not None and hasattr(upload, "filename") and upload.filename:
             ext = os.path.splitext(upload.filename)[1]
             stored = os.path.join(UPLOADS_DIR, f"{uuid.uuid4()}{ext}")
             with open(stored, "wb") as out:
                 shutil.copyfileobj(upload.file, out)
             recording_ref = stored
+        elif url_field:
+            # Sin archivo: se pegó una URL de grabación (Drive/Meet/directa).
+            recording_ref = url_field
     else:
         # JSON con url + metadata.
         try:

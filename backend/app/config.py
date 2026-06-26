@@ -7,6 +7,7 @@ Cambiar de proveedor = cambiar UNA variable de entorno.
 """
 from __future__ import annotations
 
+import os
 from typing import List
 
 from pydantic import field_validator
@@ -49,6 +50,10 @@ class Settings(BaseSettings):
     # --- Marcos pedagógicos activos (csv, en orden) ---
     ACTIVE_FRAMEWORKS: str = "minedu_mbdd,oecd_talis"
 
+    # --- Estándares pedagógicos (fuente de verdad editable, fuera del código) ---
+    # Carpeta con los marcos en JSON. Vacío => <backend>/standards.
+    STANDARDS_DIR: str = ""
+
     # --- Métricas ---
     SILENCE_THRESHOLD: float = 8.0
     FILLER_WORDS: List[str] = DEFAULT_FILLER_WORDS
@@ -69,6 +74,14 @@ class Settings(BaseSettings):
     @property
     def active_frameworks_list(self) -> List[str]:
         return [f.strip() for f in self.ACTIVE_FRAMEWORKS.split(",") if f.strip()]
+
+    @property
+    def standards_dir(self) -> str:
+        """Carpeta de estándares; default <backend>/standards (config.py vive en backend/app/)."""
+        if self.STANDARDS_DIR.strip():
+            return self.STANDARDS_DIR.strip()
+        backend_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        return os.path.join(backend_root, "standards")
 
     @property
     def cors_origins_list(self) -> List[str]:

@@ -57,6 +57,15 @@ class SessionRepository:
         self.db.add(row)
         self.db.commit()
 
+    def update_recording_ref(self, id: str, ref: str) -> None:
+        """Reapunta la grabación de la sesión (p. ej. tras descargar una URL a disco)."""
+        row = self.get(id)
+        if row is None:
+            return
+        row.recording_ref = ref
+        self.db.add(row)
+        self.db.commit()
+
     def save_artifact(self, id: str, key: str, data) -> None:
         if key not in ARTIFACT_KEYS:
             raise ValueError(
