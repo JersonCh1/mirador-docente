@@ -1,0 +1,190 @@
+{
+  "session_id": "demo-calculo-01",
+  "status": "ready",
+  "progress": 100,
+  "error": null,
+  "metadata": {
+    "course": "Cálculo I",
+    "teacher": "Prof. Ramírez",
+    "date": "2026-06-26",
+    "platform": "meet",
+    "duration_seconds": 2760,
+    "objectives": ["Definir el concepto de derivada", "Aplicar la regla de la cadena"]
+  },
+  "transcript": {
+    "segments": [
+      { "speaker": "teacher", "start": 8.0, "end": 19.4, "text": "Buenos días a todos. Hoy vamos a estudiar uno de los conceptos más importantes del curso: la derivada." },
+      { "speaker": "teacher", "start": 20.0, "end": 41.2, "text": "La derivada mide la razón de cambio instantánea de una función. Piensen en la velocidad de un auto en un instante exacto, no en el promedio del viaje." },
+      { "speaker": "teacher", "start": 42.0, "end": 58.6, "text": "Formalmente la definimos como el límite del cociente incremental cuando el incremento de equis tiende a cero." },
+      { "speaker": "student", "start": 60.1, "end": 64.0, "text": "Profe, ¿eso es lo mismo que la pendiente de la recta tangente?" },
+      { "speaker": "teacher", "start": 64.5, "end": 78.0, "text": "Exacto, muy buena observación. La derivada en un punto es precisamente la pendiente de la recta tangente a la curva en ese punto." },
+      { "speaker": "teacher", "start": 240.0, "end": 262.5, "text": "Ahora, ¿alguien me puede decir qué pasa con la derivada cuando la función es constante?" },
+      { "speaker": "teacher", "start": 263.0, "end": 271.0, "text": "Bueno, sigamos, la derivada de una constante es cero porque no hay cambio." },
+      { "speaker": "teacher", "start": 900.0, "end": 922.0, "text": "Pasemos a la regla de la cadena, que sirve para derivar funciones compuestas, o sea una función dentro de otra función." },
+      { "speaker": "teacher", "start": 923.0, "end": 951.0, "text": "La idea es derivar la función externa dejando la interna intacta, y luego multiplicar por la derivada de la función interna." },
+      { "speaker": "student", "start": 952.0, "end": 958.4, "text": "¿Puede poner un ejemplo con seno de equis al cuadrado?" },
+      { "speaker": "teacher", "start": 959.0, "end": 985.0, "text": "Claro. Si tenemos seno de equis al cuadrado, la externa es el seno y la interna es equis al cuadrado, entonces queda coseno de equis al cuadrado por dos equis." },
+      { "speaker": "student", "start": 986.0, "end": 990.2, "text": "Ah, ya entendí, primero la de afuera y después multiplico." },
+      { "speaker": "teacher", "start": 1394.0, "end": 1410.0, "text": "¿Todos de acuerdo hasta aquí? Perfecto, avancemos entonces con un ejercicio más difícil." },
+      { "speaker": "teacher", "start": 2040.0, "end": 2068.0, "text": "Esto me recuerda una anécdota de cuando yo estudiaba en la universidad, había un profesor muy estricto que nos hacía exámenes durísimos." },
+      { "speaker": "teacher", "start": 2460.0, "end": 2483.0, "text": "Bueno, volviendo al tema, practiquen en casa la regla de la cadena con al menos diez ejercicios del libro." },
+      { "speaker": "student", "start": 2484.0, "end": 2488.0, "text": "Profe, ¿esto entra en el examen del viernes?" },
+      { "speaker": "teacher", "start": 2489.0, "end": 2503.0, "text": "Sí, entra todo lo de hoy. Repasen bien la definición y la regla de la cadena, son fundamentales." }
+    ]
+  },
+  "metrics": {
+    "talk_ratio_teacher": 0.86,
+    "talk_ratio_students": 0.14,
+    "words_per_minute": 138,
+    "total_questions": 3,
+    "student_interventions": 4,
+    "long_silences": [{ "start": 78.0, "end": 240.0 }, { "start": 271.0, "end": 900.0 }],
+    "filler_words": {
+      "count": 5,
+      "top": [
+        { "word": "o sea", "n": 1 },
+        { "word": "bueno", "n": 2 },
+        { "word": "entonces", "n": 2 }
+      ]
+    },
+    "visual_timeline": [
+      { "start": 0, "end": 240, "type": "slides" },
+      { "start": 240, "end": 900, "type": "whiteboard" },
+      { "start": 900, "end": 2000, "type": "screen_share" },
+      { "start": 2000, "end": 2400, "type": "none" },
+      { "start": 2400, "end": 2760, "type": "whiteboard" }
+    ]
+  },
+  "analysis": {
+    "frameworks": [
+      {
+        "framework_id": "minedu_mbdd",
+        "framework_name": "Marco de Buen Desempeño Docente (MINEDU)",
+        "overall_score": 3.0,
+        "dimensions": [
+          {
+            "dimension_id": "dominio_disciplinar",
+            "name": "Claridad y dominio disciplinar en la conducción de la clase",
+            "score": 4,
+            "max_score": 4,
+            "observable": true,
+            "summary": "Explicaciones precisas y bien estructuradas, con analogías que conectan el concepto abstracto con la intuición física.",
+            "evidence": [
+              { "timestamp": 20.0, "quote": "La derivada mide la razón de cambio instantánea de una función. Piensen en la velocidad de un auto en un instante exacto, no en el promedio del viaje.", "comment": "Analogía clara que aterriza un concepto abstracto." },
+              { "timestamp": 64.5, "quote": "Exacto, muy buena observación. La derivada en un punto es precisamente la pendiente de la recta tangente a la curva en ese punto.", "comment": "Refuerza y valida la intervención del estudiante con precisión." }
+            ]
+          },
+          {
+            "dimension_id": "activacion_cognitiva",
+            "name": "Estrategias que promueven el razonamiento y el pensamiento crítico",
+            "score": 2,
+            "max_score": 4,
+            "observable": true,
+            "summary": "Lanza preguntas que invitan a razonar, pero con frecuencia no espera la respuesta y él mismo la contesta, cerrando la oportunidad de pensamiento.",
+            "evidence": [
+              { "timestamp": 240.0, "quote": "Ahora, ¿alguien me puede decir qué pasa con la derivada cuando la función es constante?", "comment": "Buena pregunta abierta..." },
+              { "timestamp": 263.0, "quote": "Bueno, sigamos, la derivada de una constante es cero porque no hay cambio.", "comment": "...pero la responde él mismo sin dar tiempo a los estudiantes." }
+            ]
+          },
+          {
+            "dimension_id": "verificacion_comprension",
+            "name": "Uso de la evaluación y verificación de comprensión durante la sesión",
+            "score": 3,
+            "max_score": 4,
+            "observable": true,
+            "summary": "Verifica comprensión en momentos clave, aunque las preguntas de chequeo son cerradas y no garantizan que todos hayan entendido.",
+            "evidence": [
+              { "timestamp": 1394.0, "quote": "¿Todos de acuerdo hasta aquí? Perfecto, avancemos entonces con un ejercicio más difícil.", "comment": "Chequeo de comprensión de tipo sí/no; no diagnostica comprensión real." }
+            ]
+          },
+          {
+            "dimension_id": "clima_aula",
+            "name": "Clima de aula: respeto, motivación y manejo de la participación",
+            "score": 3,
+            "max_score": 4,
+            "observable": true,
+            "summary": "Trato cálido y respetuoso; refuerza positivamente las intervenciones de los estudiantes cuando ocurren.",
+            "evidence": [
+              { "timestamp": 64.5, "quote": "Exacto, muy buena observación. La derivada en un punto es precisamente la pendiente de la recta tangente a la curva en ese punto.", "comment": "Refuerzo positivo explícito a la participación." }
+            ]
+          },
+          {
+            "dimension_id": "planificacion_curricular",
+            "name": "Planificación y preparación previa de la enseñanza",
+            "score": null,
+            "max_score": 4,
+            "observable": false,
+            "summary": "No evaluable desde la grabación de una sola clase.",
+            "evidence": []
+          }
+        ]
+      },
+      {
+        "framework_id": "oecd_talis",
+        "framework_name": "OECD/TALIS – Calidad de la enseñanza",
+        "overall_score": 2.7,
+        "dimensions": [
+          {
+            "dimension_id": "classroom_management",
+            "name": "Gestión del aula y del tiempo",
+            "score": 3,
+            "max_score": 4,
+            "observable": true,
+            "summary": "Buen control general del flujo, con transiciones claras entre temas, aunque hay una digresión que consume tiempo de la sesión.",
+            "evidence": [
+              { "timestamp": 900.0, "quote": "Pasemos a la regla de la cadena, que sirve para derivar funciones compuestas, o sea una función dentro de otra función.", "comment": "Transición explícita y ordenada entre bloques." }
+            ]
+          },
+          {
+            "dimension_id": "supportive_climate",
+            "name": "Apoyo socioemocional y clima de apoyo",
+            "score": 3,
+            "max_score": 4,
+            "observable": true,
+            "summary": "Responde con paciencia a las dudas y genera un ambiente seguro para preguntar.",
+            "evidence": [
+              { "timestamp": 959.0, "quote": "Claro. Si tenemos seno de equis al cuadrado, la externa es el seno y la interna es equis al cuadrado, entonces queda coseno de equis al cuadrado por dos equis.", "comment": "Atiende la solicitud de ejemplo de un estudiante de forma completa." }
+            ]
+          },
+          {
+            "dimension_id": "cognitive_activation",
+            "name": "Activación cognitiva",
+            "score": 2,
+            "max_score": 4,
+            "observable": true,
+            "summary": "Las tareas y preguntas tienden a lo procedimental; falta conectar con conocimientos previos y plantear retos que exijan razonar más allá del cálculo mecánico.",
+            "evidence": [
+              { "timestamp": 240.0, "quote": "Ahora, ¿alguien me puede decir qué pasa con la derivada cuando la función es constante?", "comment": "Pregunta con potencial de razonamiento que no se llega a explotar." }
+            ]
+          }
+        ]
+      }
+    ],
+    "strengths": [
+      { "title": "Explicación estructurada con analogías", "detail": "Conecta la definición formal de derivada con la intuición física de la velocidad instantánea, facilitando la comprensión.", "timestamp": 20.0 },
+      { "title": "Refuerzo positivo a la participación", "detail": "Valida explícitamente las intervenciones correctas de los estudiantes, fortaleciendo el clima del aula.", "timestamp": 64.5 }
+    ],
+    "improvements": [
+      { "title": "Esperar la respuesta tras preguntar", "detail": "Lanza preguntas abiertas pero las responde él mismo, cerrando la oportunidad de razonamiento de los estudiantes.", "timestamp": 263.0, "suggestion": "Aplica la técnica de 'tiempo de espera': cuenta 5–7 segundos en silencio tras cada pregunta antes de dar la respuesta o de nominar a alguien." },
+      { "title": "Reducir el monólogo docente", "detail": "El docente habla el 86% del tiempo. La participación estudiantil es baja y reactiva.", "timestamp": 240.0, "suggestion": "Inserta una pregunta dirigida a un estudiante específico tras cada bloque de explicación, o una micro-actividad en parejas." },
+      { "title": "Acotar las digresiones", "detail": "Una anécdota personal se extiende y desvía la sesión de los objetivos.", "timestamp": 2040.0, "suggestion": "Usa anécdotas como gancho breve (máx. 30 s) y regresa de inmediato al contenido planificado." }
+    ],
+    "objective_alignment": {
+      "aligned_pct": 0.85,
+      "deviations": [
+        { "start": 2040.0, "end": 2460.0, "note": "Digresión sobre una anécdota universitaria no relacionada con los objetivos de la sesión." }
+      ]
+    }
+  },
+  "student_feedback": {
+    "participation_level": "medium",
+    "interventions": 4,
+    "speaking_seconds": 24,
+    "recommendations": [
+      { "title": "Anímate a intervenir en la segunda mitad", "detail": "Tus preguntas en la primera parte fueron muy buenas; mantén ese ritmo durante toda la clase." },
+      { "title": "Formula tus dudas con un ejemplo", "detail": "Pedir un ejemplo concreto, como hiciste con seno de equis al cuadrado, ayuda a todo el grupo a entender." }
+    ],
+    "review_topics": ["Definición formal de derivada", "Regla de la cadena con funciones trigonométricas"]
+  },
+  "created_at": "2026-06-26T14:03:00Z"
+}

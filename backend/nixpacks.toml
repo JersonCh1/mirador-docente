@@ -1,0 +1,11 @@
+# Nixpacks config para Railway. Declara ffmpeg como paquete del sistema
+# (necesario para extraer audio de los videos subidos) e instala las deps de pip.
+
+[phases.setup]
+nixPkgs = ["python311", "ffmpeg"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[start]
+cmd = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
