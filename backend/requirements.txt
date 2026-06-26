@@ -7,3 +7,6 @@ python-multipart>=0.0.9
 anthropic>=0.39
 assemblyai>=0.30
 httpx>=0.26
+
+# dev / testing
+pytest>=8.0
