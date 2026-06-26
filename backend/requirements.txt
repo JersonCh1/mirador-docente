@@ -8,6 +8,9 @@ anthropic>=0.39
 assemblyai>=0.30
 httpx>=0.26
 
+gdown>=5.2              # descarga desde Google Drive (maneja confirmación automática)
+eval_type_backport>=0.2 # compatibilidad Python 3.9 con tipos modernos
+
 # Stack local opcional (real, sin API key). Solo se importa si se usa.
 faster-whisper>=1.0  # TRANSCRIPTION_PROVIDER=whisper ; Ollama (LLM) usa httpx
 

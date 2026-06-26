@@ -24,7 +24,7 @@ from fastapi.responses import FileResponse
 from ..config import Settings
 from ..db import SessionLocal
 from ..media.download import UPLOADS_DIR
-from ..pipeline.runner import run_pipeline
+from ..pipeline.runner import run_pipeline, run_analysis_only
 from ..repository import SessionRepository
 from ..schemas import (
     CreateSessionResponse,
@@ -168,6 +168,33 @@ def get_recording(
     if not ref or not os.path.exists(ref):
         raise HTTPException(status_code=404, detail="Grabación no disponible.")
     return FileResponse(ref)
+
+
+@router.post("/sessions/{session_id}/retry-analysis")
+async def retry_analysis(
+    session_id: str,
+    background: BackgroundTasks,
+    repo: SessionRepository = Depends(get_repo),
+    settings: Settings = Depends(get_settings),
+) -> StatusResponse:
+    """Re-ejecuta analyze→validate→persist sobre el transcript ya guardado.
+    Útil cuando el paso de análisis falla sin tener que re-transcribir."""
+    row = repo.get(session_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Sesión no encontrada.")
+    if not row.transcript_json:
+        raise HTTPException(status_code=400, detail="No hay transcript guardado para esta sesión.")
+
+    def _bg():
+        db = SessionLocal()
+        try:
+            r = SessionRepository(db)
+            run_analysis_only(session_id, r, settings)
+        finally:
+            db.close()
+
+    background.add_task(_bg)
+    return StatusResponse(status="analyzing", progress=55, error=None)
 
 
 def _parse_objectives(raw):

@@ -36,38 +36,16 @@ _STUDENT_FEEDBACK_MOCK = {
 
 def _build_analysis(transcript, metrics, frameworks, objectives, analyzer) -> dict:
     """
-    Llama al Analyzer una vez POR MARCO activo (desacople: cada marco se evalúa
-    de forma independiente y swappable) y ensambla el `analysis` del contrato.
-
-    De cada llamada se toma el framework con el id pedido; las secciones globales
-    (strengths/improvements/objective_alignment) se toman de la primera llamada.
+    Llama al Analyzer UNA SOLA VEZ con todos los marcos activos.
+    Esto respeta el límite de tokens/minuto del free tier de Groq (12k TPM):
+    una llamada con todos los frameworks usa menos tokens que N llamadas separadas.
     """
-    out_frameworks = []
-    strengths = []
-    improvements = []
-    objective_alignment = None
-
-    for i, fw in enumerate(frameworks):
-        result = analyzer.analyze(transcript, metrics, [fw], objectives)
-
-        # Selecciona el framework con el id pedido (el fake devuelve todos).
-        wanted = fw["framework_id"]
-        matched = [
-            f for f in result.get("frameworks", [])
-            if f.get("framework_id") == wanted
-        ]
-        out_frameworks.extend(matched or result.get("frameworks", []))
-
-        if i == 0:
-            strengths = result.get("strengths", []) or []
-            improvements = result.get("improvements", []) or []
-            objective_alignment = result.get("objective_alignment")
-
+    result = analyzer.analyze(transcript, metrics, frameworks, objectives)
     return {
-        "frameworks": out_frameworks,
-        "strengths": strengths,
-        "improvements": improvements,
-        "objective_alignment": objective_alignment,
+        "frameworks": result.get("frameworks", []),
+        "strengths": result.get("strengths", []) or [],
+        "improvements": result.get("improvements", []) or [],
+        "objective_alignment": result.get("objective_alignment"),
     }
 
 
@@ -145,4 +123,39 @@ def run_pipeline(
         repo.update_status(session_id, "ready", 100)
 
     except Exception as e:  # noqa: BLE001 - nunca crashear el server
+        repo.update_status(session_id, "failed", 100, error=str(e))
+
+
+def run_analysis_only(
+    session_id: str,
+    repo: SessionRepository,
+    settings: Settings | None = None,
+) -> None:
+    """Reanuda el pipeline desde el paso de análisis usando el transcript ya guardado.
+    Útil para reintentar cuando analyze/validate falla sin tener que re-transcribir."""
+    settings = settings or get_settings()
+    try:
+        row = repo.get(session_id)
+        if row is None or not row.transcript_json:
+            raise RuntimeError("No hay transcript guardado para esta sesión.")
+
+        transcript = row.transcript_json
+        metrics = row.metrics_json or {}
+
+        repo.update_status(session_id, "analyzing", 55)
+
+        objectives = (row.metadata_json or {}).get("objectives")
+        frameworks = get_active_frameworks(settings)
+        analyzer = Analyzer(get_llm_provider(settings))
+        analysis = _build_analysis(transcript, metrics, frameworks, objectives, analyzer)
+
+        repo.update_status(session_id, "validating", 90)
+        cleaned, _report = validate_analysis(analysis, transcript)
+        repo.save_artifact(session_id, "analysis_json", cleaned)
+        repo.update_status(session_id, "validating", 95)
+
+        repo.save_artifact(session_id, "student_feedback_json", _STUDENT_FEEDBACK_MOCK)
+        repo.update_status(session_id, "ready", 100)
+
+    except Exception as e:  # noqa: BLE001
         repo.update_status(session_id, "failed", 100, error=str(e))

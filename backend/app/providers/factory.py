@@ -59,5 +59,13 @@ def get_llm_provider(settings: Settings | None = None) -> LLMProvider:
             base_url=settings.OLLAMA_BASE_URL,
             temperature=settings.LLM_TEMPERATURE,
         )
+    if provider == "groq":
+        from .llm.groq import GroqProvider
+
+        return GroqProvider(
+            api_key=settings.GROQ_API_KEY,
+            model=settings.LLM_MODEL,
+            temperature=settings.LLM_TEMPERATURE,
+        )
 
     raise ValueError(f"LLM_PROVIDER desconocido: {provider!r}")

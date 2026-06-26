@@ -7,13 +7,50 @@ from __future__ import annotations
 import json
 
 
+_MAX_TRANSCRIPT_CHARS = 7_000  # ~1750 tokens; Groq free tier = 12k TPM total
+
+
 def _transcript_lines(transcript: dict) -> str:
-    lines = []
-    for s in (transcript or {}).get("segments", []):
-        lines.append(
-            f"[{s.get('start')}–{s.get('end')}] ({s.get('speaker')}): {s.get('text')}"
-        )
-    return "\n".join(lines)
+    """
+    Serializa los segmentos del transcript. Si el total excede el límite de
+    caracteres, muestra una muestra representativa distribuida uniformemente
+    a lo largo de toda la clase (no solo los primeros minutos).
+    """
+    segments = (transcript or {}).get("segments", [])
+    if not segments:
+        return ""
+
+    lines = [
+        f"[{s.get('start')}–{s.get('end')}] ({s.get('speaker')}): {s.get('text')}"
+        for s in segments
+    ]
+    full_text = "\n".join(lines)
+
+    if len(full_text) <= _MAX_TRANSCRIPT_CHARS:
+        return full_text
+
+    # Muestrea N segmentos distribuidos a lo largo de toda la clase.
+    n_target = max(40, len(segments) // 3)
+    step = max(1, len(segments) // n_target)
+    sampled = segments[::step]
+
+    sampled_lines = [
+        f"[{s.get('start')}–{s.get('end')}] ({s.get('speaker')}): {s.get('text')}"
+        for s in sampled
+    ]
+    result = "\n".join(sampled_lines)
+
+    # Segunda pasada: si sigue siendo demasiado largo, recorta por caracteres.
+    if len(result) > _MAX_TRANSCRIPT_CHARS:
+        result = result[:_MAX_TRANSCRIPT_CHARS] + "\n[... transcripción recortada por longitud ...]"
+
+    total_dur = segments[-1].get("end", 0)
+    header = (
+        f"[NOTA: transcript completo tiene {len(segments)} segmentos y "
+        f"{total_dur/60:.1f} min. Se muestra una muestra de {len(sampled)} "
+        f"segmentos distribuidos a lo largo de toda la clase.]\n"
+    )
+    return header + result
 
 
 def build_prompt(

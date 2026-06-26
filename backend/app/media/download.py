@@ -90,6 +90,27 @@ def _guess_ext(headers: httpx.Headers, url: str) -> str:
     return ".mp4"
 
 
+def _download_drive(file_id: str, dest_dir: str) -> str:
+    """Descarga un archivo de Google Drive usando gdown (maneja confirmación y virus-scan)."""
+    try:
+        import gdown  # type: ignore
+    except ImportError:
+        raise RuntimeError(
+            "Instala gdown para descargar desde Google Drive: pip install gdown"
+        )
+    import warnings
+    dest_path = os.path.join(dest_dir, f"{uuid.uuid4()}.mp4")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        result = gdown.download(id=file_id, output=dest_path, quiet=False, fuzzy=True)
+    if not result or not os.path.exists(result) or os.path.getsize(result) == 0:
+        raise RuntimeError(
+            "No se pudo descargar el archivo de Drive. Verifica que el enlace "
+            "tenga acceso 'Cualquiera con el enlace'."
+        )
+    return result
+
+
 def download_recording(
     url: str,
     dest_dir: str | None = None,
@@ -99,24 +120,26 @@ def download_recording(
     """
     Descarga `url` a un archivo local en `dest_dir` y devuelve la ruta.
 
-    Lanza RuntimeError con mensaje claro si la descarga falla o si la respuesta
-    es una página HTML (típico de un enlace de Drive sin permiso público).
+    Lanza RuntimeError con mensaje claro si la descarga falla.
+    Para Google Drive usa gdown (maneja confirmación automáticamente).
     """
     dest_dir = dest_dir or UPLOADS_DIR
     os.makedirs(dest_dir, exist_ok=True)
-    direct = normalize_media_url(url)
-    path: str | None = None
 
+    file_id = _drive_file_id(url)
+    if file_id:
+        return _download_drive(file_id, dest_dir)
+
+    path: str | None = None
     try:
         with httpx.Client(follow_redirects=True, timeout=timeout) as client:
-            with client.stream("GET", direct) as resp:
+            with client.stream("GET", url) as resp:
                 resp.raise_for_status()
                 ctype = resp.headers.get("content-type", "").lower()
                 if "text/html" in ctype:
                     raise RuntimeError(
-                        "La URL devolvió una página HTML, no un archivo. Si es un "
-                        "enlace de Google Drive/Meet, comparte la grabación como "
-                        "'Cualquiera con el enlace' o sube el archivo directamente."
+                        "La URL devolvió una página HTML, no un archivo. "
+                        "Sube el archivo directamente o usa un enlace de descarga directa."
                     )
                 ext = _guess_ext(resp.headers, url)
                 path = os.path.join(dest_dir, f"{uuid.uuid4()}{ext}")

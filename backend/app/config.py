@@ -42,6 +42,7 @@ class Settings(BaseSettings):
     # --- Keys (vacías por defecto: modo fake) ---
     ASSEMBLYAI_API_KEY: str = ""
     ANTHROPIC_API_KEY: str = ""
+    GROQ_API_KEY: str = ""
 
     # --- LLM ---
     LLM_MODEL: str = "claude-sonnet-4-6"
