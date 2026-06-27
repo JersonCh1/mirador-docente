@@ -1,5 +1,5 @@
 /**
- * App — layout + routing de Mirador Docente.
+ * App — layout + routing de Metrick.
  *
  * Rutas:
  *   /                       → SessionListPage (biblioteca)
@@ -32,7 +32,7 @@ export default function App() {
           </Routes>
         </main>
         <footer className="border-t border-line py-6 text-center text-xs text-inkSoft">
-          Mirador Docente · retroalimentación pedagógica anclada en evidencia
+          Metrick · retroalimentación pedagógica anclada en evidencia
         </footer>
       </div>
     </BrowserRouter>

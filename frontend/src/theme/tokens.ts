@@ -1,5 +1,5 @@
 /**
- * Tokens de diseño de Mirador Docente — UN solo lugar.
+ * Tokens de diseño de Metrick — UN solo lugar.
  *
  * Dirección: instrumento analítico CÁLIDO, que se sienta como COACHING y
  * NO como vigilancia.

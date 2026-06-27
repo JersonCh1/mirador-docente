@@ -54,6 +54,8 @@ class SessionRepository:
         row.progress = progress
         if error is not None:
             row.error = error
+        elif status in ("ready", "analyzing", "transcribing", "validating"):
+            row.error = None
         self.db.add(row)
         self.db.commit()
 

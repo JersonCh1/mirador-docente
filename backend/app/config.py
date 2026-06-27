@@ -1,5 +1,5 @@
 """
-Configuración central de Mirador Docente.
+Configuración central de Metrick.
 
 Pydantic Settings leído desde variables de entorno (.env). Nada hardcodeado:
 el default de proveedores es "fake" para que el MVP corra SIN API keys.

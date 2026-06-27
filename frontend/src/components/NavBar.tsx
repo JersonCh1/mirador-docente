@@ -5,7 +5,7 @@
  * sesión, el selector de los 3 lentes (Docente / Estudiante / Institución).
  */
 import { Link, useLocation, useParams, useMatch } from "react-router-dom";
-import { Mountain, Upload } from "lucide-react";
+import { BarChart2, Upload } from "lucide-react";
 
 type Lens = "teacher" | "student";
 
@@ -22,12 +22,9 @@ export default function NavBar() {
     <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Link to="/" className="flex items-center gap-2">
-          <Mountain className="h-6 w-6 text-evidence" aria-hidden="true" />
+          <BarChart2 className="h-6 w-6 text-evidence" aria-hidden="true" />
           <span className="font-display text-2xl leading-none text-ink">
-            Mirador
-          </span>
-          <span className="hidden text-sm text-inkSoft sm:inline">
-            Docente
+            Metrick
           </span>
         </Link>
 

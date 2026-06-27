@@ -1,5 +1,5 @@
 /**
- * Cliente HTTP de Mirador Docente.
+ * Cliente HTTP de Metrick.
  *
  * Funciones: createSession, listSessions, getSession, getSessionStatus.
  *

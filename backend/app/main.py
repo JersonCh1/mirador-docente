@@ -1,5 +1,5 @@
 """
-App FastAPI de Mirador Docente. Monta el router /api, configura CORS desde
+App FastAPI de Metrick. Monta el router /api, configura CORS desde
 config e inicializa la DB en el arranque. En producción (un solo servicio
 Railway) sirve el build del frontend desde `frontend/dist` si existe.
 """
@@ -18,7 +18,7 @@ from .db import init_db
 
 settings = get_settings()
 
-app = FastAPI(title="Mirador Docente API", version="1.0.0")
+app = FastAPI(title="Metrick API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,

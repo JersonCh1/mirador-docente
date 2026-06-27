@@ -13,7 +13,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 Platform = Literal["meet", "zoom", "teams", "upload"]
 Status = Literal[
@@ -105,6 +105,14 @@ class Dimension(BaseModel):
     observable: bool = True
     summary: str = ""
     evidence: list[Evidence] = Field(default_factory=list)
+
+    @field_validator("score", mode="before")
+    @classmethod
+    def _round_score(cls, v: object) -> object:
+        # El LLM a veces devuelve 3.5 en vez de 3 o 4 — redondeamos.
+        if isinstance(v, float):
+            return round(v)
+        return v
 
 
 class Framework(BaseModel):

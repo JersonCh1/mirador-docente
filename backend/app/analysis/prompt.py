@@ -6,11 +6,11 @@ from __future__ import annotations
 
 import json
 
-# Groq free tier: 12k TPM. Input ~6k + output 4k = 10k total.
-# Framework JSON + sistema ≈ 3k tokens (12k chars). Transcript: hasta 6k chars.
-_MAX_TRANSCRIPT_CHARS = 16_000   # límite total del bloque de transcript
+# Groq free tier: 12k TPM. Budget: ~5k input + 3k output = 8k, margen seguro.
+# Reducimos transcript y enviamos frameworks sin campos verbosos (source/description).
+_MAX_TRANSCRIPT_CHARS = 8_000    # límite total del bloque de transcript
 _WINDOW_SECS = 180               # ventana de tiempo: cada 3 minutos, 1 muestra
-_CHARS_PER_WINDOW = 500          # chars que se muestran por ventana
+_CHARS_PER_WINDOW = 300          # chars que se muestran por ventana
 
 
 def _split_into_windows(segments: list[dict]) -> list[dict]:
@@ -89,60 +89,83 @@ def _transcript_lines(transcript: dict) -> str:
     return header + result
 
 
+def _slim_frameworks(frameworks: list[dict]) -> list[dict]:
+    """Elimina source/description de los frameworks para reducir tokens.
+    El LLM solo necesita name + look_for para saber qué evaluar."""
+    slim = []
+    for fw in frameworks:
+        slim.append({
+            "framework_id": fw["framework_id"],
+            "framework_name": fw["framework_name"],
+            "dimensions": [
+                {
+                    "dimension_id": d["dimension_id"],
+                    "name": d["name"],
+                    "look_for": d.get("look_for", ""),
+                    "observable_from_recording": d.get("observable_from_recording", True),
+                }
+                for d in fw.get("dimensions", [])
+            ],
+        })
+    return slim
+
+
 def build_prompt(
     transcript: dict,
     metrics: dict,
     frameworks: list[dict],
     objectives: list[str] | None,
+    include_global: bool = True,
 ) -> str:
-    frameworks_json = json.dumps(frameworks, ensure_ascii=False, indent=2)
-    metrics_json = json.dumps(metrics, ensure_ascii=False, indent=2)
+    frameworks_json = json.dumps(_slim_frameworks(frameworks), ensure_ascii=False, indent=2)
+    metrics_json = json.dumps(metrics, ensure_ascii=False)
     objectives_json = json.dumps(objectives or [], ensure_ascii=False)
     transcript_block = _transcript_lines(transcript)
 
     total_mins = (transcript or {}).get('segments', [{}])[-1].get('end', 0) / 60
     third = total_mins / 3
 
-    return f"""Eres un evaluador pedagógico experto en formación docente. Analizas la
-grabación COMPLETA de UNA clase y produces retroalimentación formativa con tono
-de coaching (acompañamiento, no sanción), anclada en evidencia de TODA la clase.
+    global_rules = """
+5. FORTALEZAS (mín. 3) — ejemplos del tono esperado:
+   "Hiciste muy bien en abrir con una pregunta que conecta el derecho con la vida cotidiana"
+   "En el minuto 34 cuando pediste a los estudiantes que definieran justicia, lograste..."
 
-REGLAS OBLIGATORIAS — incumplirlas invalida el resultado:
+6. MEJORAS (mín. 3) — ejemplos del tono esperado:
+   "En la segunda mitad de la clase, podrías haber pausado para preguntar si todos seguían"
+   "Te sugiero que en la próxima clase incluyas un momento donde los estudiantes..."
+   Cada mejora lleva una `suggestion` concreta: qué hacer diferente y cómo.
+""" if include_global else "5. NO incluyas fortalezas ni mejoras globales en esta llamada.\n"
 
-1. COBERTURA TOTAL DE LA CLASE (REGLA MÁS IMPORTANTE).
-   La clase dura {total_mins:.0f} minutos. Está dividida en tres tercios:
-   - INICIO: minutos 0 – {third:.0f}
-   - DESARROLLO: minutos {third:.0f} – {third*2:.0f}
-   - CIERRE: minutos {third*2:.0f} – {total_mins:.0f}
-   Para CADA dimensión observable DEBES buscar evidencia en los tres tercios.
-   Incluye MÍNIMO 2 evidencias por dimensión, de momentos distintos de la clase.
-   PROHIBIDO concentrar todas las citas en los primeros 20 minutos.
+    global_schema = """
+  "strengths": [{"title": "<elogio directo>", "detail": "<con minuto concreto>", "timestamp": <float>}],
+  "improvements": [{"title": "<área de mejora>", "detail": "<qué observaste>", "timestamp": <float>, "suggestion": "<qué hacer diferente>"}],
+  "objective_alignment": {"aligned_pct": <0-1>, "deviations": [{"start": <float>, "end": <float>, "note": "..."}]} | null""" if include_global else """
+  "strengths": [],
+  "improvements": [],
+  "objective_alignment": null"""
 
-2. CITA TEXTUAL EXACTA Y SEMÁNTICAMENTE RELEVANTE.
-   Cada `quote` debe:
-   a) Copiarse CARÁCTER POR CARÁCTER del transcript (sin parafrasear ni resumir).
-   b) Ser DIRECTAMENTE relevante a la dimensión. No uses frases de saludo o
-      logística para evidenciar activación cognitiva. Si no hay cita relevante
-      en un tercio de la clase, indícalo en el `comment` pero busca en otro tercio.
+    return f"""Eres un coach pedagógico experto. Acabas de observar la clase completa de
+un docente y ahora le das retroalimentación DIRECTA Y PERSONAL, hablándole de TÚ,
+como si estuvieras sentado frente a él/ella después de ver la grabación.
 
-3. SOLO DIMENSIONES OBSERVABLES.
-   Las que tienen `observable_from_recording: false` → emítelas con
-   `observable: false`, `score: null`, `evidence: []`, `summary` explicando por qué.
+TONO OBLIGATORIO:
+- SEGUNDA PERSONA SINGULAR: "hiciste", "lograste", "podrías", "te sugiero".
+- MOMENTOS CONCRETOS: "En el minuto X, cuando dijiste '...' hiciste muy bien..."
+- PROHIBIDO tercera persona ("el docente", "se observa que").
 
-4. SCORES DIFERENCIALES Y HONESTOS.
-   Escala 1-4. Un 4 es excepcional, un 3 es bueno, un 2 es mejorable, un 1 es
-   ausente o muy deficiente. No pongas el mismo score a dimensiones distintas
-   si el comportamiento observado no es igual. El `overall_score` de cada marco
-   es el promedio de sus dimensiones observables, redondeado a 1 decimal.
+REGLAS DE ANÁLISIS:
 
-5. FORTALEZAS Y MEJORAS — MÍNIMO 3 DE CADA UNA.
-   Cada una debe mencionar un momento concreto de ESTA clase (no genérico).
-   Cada mejora lleva una `suggestion` específica y accionable para el docente.
+1. COBERTURA TOTAL — clase de {total_mins:.0f} min dividida en:
+   - INICIO (min 0–{third:.0f}), DESARROLLO (min {third:.0f}–{third*2:.0f}), CIERRE (min {third*2:.0f}–{total_mins:.0f}).
+   MÍNIMO 1 evidencia por dimensión de cada tercio. No concentres todo al inicio.
 
-6. OBJETIVO. Si hay objetivos declarados, calcula `objective_alignment` con el
-   porcentaje de tiempo alineado y los tramos donde hubo desvío.
+2. CITA TEXTUAL EXACTA copiada del transcript. Solo citas semánticamente relevantes a la dimensión.
 
-7. SALIDA. ÚNICAMENTE JSON válido. SIN markdown, SIN ```fences```, SIN texto extra.
+3. SCORES HONESTOS 1–4. overall_score = promedio de dimensiones observables.
+
+4. DIMENSIONES NO OBSERVABLES → observable: false, score: null, evidence: [].
+{global_rules}
+7. SALIDA: ÚNICAMENTE JSON válido, sin markdown ni texto extra.
 
 ESTRUCTURA DE SALIDA:
 {{
@@ -158,15 +181,12 @@ ESTRUCTURA DE SALIDA:
           "score": <int 1-4|null>,
           "max_score": 4,
           "observable": <bool>,
-          "summary": "<descripción específica de lo observado en ESTA clase, 2-3 oraciones>",
-          "evidence": [{{"timestamp": <float segundos>, "quote": "<cita exacta del transcript>", "comment": "<por qué esta cita evidencia la dimensión>"}}]
+          "summary": "<1-2 oraciones en segunda persona sobre ESTA clase>",
+          "evidence": [{{"timestamp": <float>, "quote": "<cita exacta>", "comment": "<por qué evidencia la dimensión>"}}]
         }}
       ]
     }}
-  ],
-  "strengths": [{{"title": "...", "detail": "<específico de esta clase>", "timestamp": <float>}}],
-  "improvements": [{{"title": "...", "detail": "...", "timestamp": <float>, "suggestion": "<acción concreta>'"}}],
-  "objective_alignment": {{"aligned_pct": <0-1>, "deviations": [{{"start": <float>, "end": <float>, "note": "..."}}]}} | null
+  ],{global_schema}
 }}
 
 MARCOS A EVALUAR:

@@ -1,6 +1,6 @@
 """
 Analyzer: orquesta la llamada al LLM para producir el `analysis` anclado en
-evidencia. Limpia fences, parsea JSON y reintenta UNA vez ante fallo de parseo.
+evidencia. Limpia fences/<think>, parsea JSON y reintenta UNA vez ante fallo.
 """
 from __future__ import annotations
 
@@ -11,23 +11,21 @@ from ..providers.llm.base import LLMProvider
 from .prompt import build_prompt
 
 
-def _strip_fences(text: str) -> str:
-    """Quita ```json ... ``` o ``` ... ``` si el modelo los incluye."""
+def _clean_llm_output(text: str) -> str:
+    """Quita <think>...</think>, fences y cualquier texto fuera del JSON."""
     t = text.strip()
+    # Algunos modelos (qwen, deepseek) emiten <think>...</think> antes del JSON.
+    t = re.sub(r"<think>.*?</think>", "", t, flags=re.DOTALL).strip()
+    # Quita ```json ... ``` o ``` ... ```
     fence = re.match(r"^```(?:json)?\s*(.*?)\s*```$", t, flags=re.DOTALL)
     if fence:
-        return fence.group(1).strip()
-    return t
-
-
-def _extract_json(text: str) -> str:
-    """Recorta hasta el primer '{' y el último '}' por si hay texto alrededor."""
-    cleaned = _strip_fences(text)
-    start = cleaned.find("{")
-    end = cleaned.rfind("}")
+        t = fence.group(1).strip()
+    # Recorta al primer '{' y último '}' por si hay texto alrededor.
+    start = t.find("{")
+    end = t.rfind("}")
     if start != -1 and end != -1 and end > start:
-        return cleaned[start : end + 1]
-    return cleaned
+        return t[start : end + 1]
+    return t
 
 
 class Analyzer:
@@ -40,22 +38,22 @@ class Analyzer:
         metrics: dict,
         frameworks: list[dict],
         objectives: list[str] | None,
+        include_global: bool = True,
     ) -> dict:
-        prompt = build_prompt(transcript, metrics, frameworks, objectives)
+        prompt = build_prompt(transcript, metrics, frameworks, objectives, include_global=include_global)
 
         raw = self.llm.complete(prompt)
         parsed = self._try_parse(raw)
         if parsed is not None:
             return parsed
 
-        # Reintento único con mensaje correctivo.
-        corrective = (
-            prompt
-            + "\n\nIMPORTANTE: tu respuesta anterior NO fue JSON válido. "
-            "Responde ÚNICAMENTE con el objeto JSON de 'analysis', sin markdown, "
-            "sin fences y sin ningún texto adicional."
+        # Reintento ligero: solo pide el JSON sin reenviar el prompt completo.
+        fix_prompt = (
+            "El siguiente texto debería ser un JSON válido pero tiene errores. "
+            "Devuelve ÚNICAMENTE el objeto JSON corregido y completo, sin markdown:\n\n"
+            + raw[:4000]
         )
-        raw2 = self.llm.complete(corrective)
+        raw2 = self.llm.complete(fix_prompt)
         parsed2 = self._try_parse(raw2)
         if parsed2 is not None:
             return parsed2
@@ -67,7 +65,7 @@ class Analyzer:
     @staticmethod
     def _try_parse(raw: str) -> dict | None:
         try:
-            data = json.loads(_extract_json(raw))
+            data = json.loads(_clean_llm_output(raw))
         except (json.JSONDecodeError, TypeError):
             return None
         if not isinstance(data, dict) or "frameworks" not in data:

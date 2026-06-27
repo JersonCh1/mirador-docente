@@ -36,16 +36,29 @@ _STUDENT_FEEDBACK_MOCK = {
 
 def _build_analysis(transcript, metrics, frameworks, objectives, analyzer) -> dict:
     """
-    Llama al Analyzer UNA SOLA VEZ con todos los marcos activos.
-    Esto respeta el límite de tokens/minuto del free tier de Groq (12k TPM):
-    una llamada con todos los frameworks usa menos tokens que N llamadas separadas.
+    Una llamada al LLM por framework. Cada una usa ~1000 tokens de output
+    en vez de 2500+, lo que permite usar modelos pequeños de fallback (8B).
+    Las fortalezas/mejoras se generan en la última llamada.
     """
-    result = analyzer.analyze(transcript, metrics, frameworks, objectives)
+    all_frameworks = []
+    strengths = []
+    improvements = []
+    objective_alignment = None
+
+    for i, fw in enumerate(frameworks):
+        is_last = (i == len(frameworks) - 1)
+        result = analyzer.analyze(transcript, metrics, [fw], objectives, include_global=is_last)
+        all_frameworks.extend(result.get("frameworks", []))
+        if is_last:
+            strengths = result.get("strengths", []) or []
+            improvements = result.get("improvements", []) or []
+            objective_alignment = result.get("objective_alignment")
+
     return {
-        "frameworks": result.get("frameworks", []),
-        "strengths": result.get("strengths", []) or [],
-        "improvements": result.get("improvements", []) or [],
-        "objective_alignment": result.get("objective_alignment"),
+        "frameworks": all_frameworks,
+        "strengths": strengths,
+        "improvements": improvements,
+        "objective_alignment": objective_alignment,
     }
 
 
