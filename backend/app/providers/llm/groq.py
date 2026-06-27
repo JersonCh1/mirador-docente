@@ -1,7 +1,7 @@
 """
 Proveedor LLM Groq (free tier). Usa la API OpenAI-compatible de Groq via httpx.
 Si el modelo principal agota su cuota diaria, hace fallback automático a modelos
-alternativos con cuotas independientes.
+alternativos con cuotas independientes, y finalmente a Gemini si hay key.
 """
 from __future__ import annotations
 
@@ -11,17 +11,24 @@ import httpx
 
 from .base import LLMProvider
 
-# Modelos en orden de preferencia con sus max_tokens seguros.
-# El 8B y gemma tienen límite de ~6k tokens por request, así que reducimos output.
+_GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+_GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+
+# Groq: modelo principal primero, luego fallbacks.
 _FALLBACK_MODELS = [
     ("llama-3.3-70b-versatile", 3000),
     ("llama-3.1-8b-instant",    1800),
     ("gemma2-9b-it",            1800),
 ]
 
+# Gemini: 3.1-flash-lite tiene 500 RPD (250 sesiones/día), ideal para respaldo.
+_GEMINI_FALLBACK_MODELS = [
+    ("gemini-3.1-flash-lite", 2000),
+    ("gemini-2.5-flash-lite", 2000),
+]
+
 
 class GroqProvider(LLMProvider):
-    BASE_URL = "https://api.groq.com/openai/v1/chat/completions"
 
     def __init__(
         self,
@@ -29,6 +36,7 @@ class GroqProvider(LLMProvider):
         model: str = "llama-3.3-70b-versatile",
         temperature: float = 0.2,
         max_tokens: int = 3000,
+        gemini_api_key: str = "",
     ):
         if not api_key:
             raise RuntimeError(
@@ -39,31 +47,35 @@ class GroqProvider(LLMProvider):
         self._model = model
         self._temperature = temperature
         self._max_tokens = max_tokens
+        self._gemini_api_key = gemini_api_key
 
-    def _call_with_tokens(self, model: str, max_tokens: int, prompt: str) -> str:
-        return self._call(model, prompt, max_tokens)
-
-    def _call(self, model: str, prompt: str, max_tokens: int | None = None) -> str:
+    def _call_openai_compat(
+        self,
+        url: str,
+        api_key: str,
+        model: str,
+        prompt: str,
+        max_tokens: int,
+    ) -> str:
         headers = {
-            "Authorization": f"Bearer {self._api_key}",
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         }
         body = {
             "model": model,
             "messages": [{"role": "user", "content": prompt}],
             "temperature": self._temperature,
-            "max_tokens": max_tokens if max_tokens is not None else self._max_tokens,
+            "max_tokens": max_tokens,
             "response_format": {"type": "json_object"},
         }
         for attempt in range(3):
-            resp = httpx.post(self.BASE_URL, headers=headers, json=body, timeout=120.0)
+            resp = httpx.post(url, headers=headers, json=body, timeout=120.0)
             if resp.status_code == 429:
                 retry_after = int(resp.headers.get("retry-after", 65))
                 if retry_after > 120:
-                    # Cuota diaria agotada para este modelo.
                     raise _QuotaExhausted(model, retry_after)
                 wait = max(retry_after, 10)
-                print(f"[Groq/{model}] Rate limit — esperando {wait}s (intento {attempt+1}/3)…")
+                print(f"[LLM/{model}] Rate limit — esperando {wait}s (intento {attempt+1}/3)…")
                 time.sleep(wait)
                 continue
             resp.raise_for_status()
@@ -72,23 +84,32 @@ class GroqProvider(LLMProvider):
         return data["choices"][0]["message"]["content"].strip()
 
     def complete(self, prompt: str) -> str:
-        # Construye lista de modelos: el configurado primero, luego fallbacks.
+        # 1. Intenta modelos Groq en cascada.
         primary = (self._model, self._max_tokens)
         others = [(m, t) for m, t in _FALLBACK_MODELS if m != self._model]
-        models_to_try = [primary] + others
-        last_err: Exception = RuntimeError("Sin modelos disponibles")
-        for model, max_tok in models_to_try:
+        for model, max_tok in [primary] + others:
             try:
-                result = self._call_with_tokens(model, max_tok, prompt)
+                result = self._call_openai_compat(_GROQ_URL, self._api_key, model, prompt, max_tok)
                 if model != self._model:
                     print(f"[Groq] Usando fallback: {model}")
                 return result
-            except _QuotaExhausted as e:
+            except _QuotaExhausted:
                 print(f"[Groq] Cuota agotada para {model}, probando siguiente…")
-                last_err = e
-                continue
+
+        # 2. Intenta modelos Gemini si hay key.
+        if self._gemini_api_key:
+            for g_model, g_tok in _GEMINI_FALLBACK_MODELS:
+                try:
+                    print(f"[Gemini] Groq agotado — usando {g_model}…")
+                    return self._call_openai_compat(
+                        _GEMINI_URL, self._gemini_api_key, g_model, prompt, g_tok
+                    )
+                except _QuotaExhausted:
+                    print(f"[Gemini] Cuota agotada para {g_model}, probando siguiente…")
+
         raise RuntimeError(
-            f"Todos los modelos de Groq tienen cuota agotada. {last_err}"
+            "Todos los modelos de Groq y Gemini tienen cuota agotada. "
+            "Intenta en unos minutos o revisa tus límites en groq.com / aistudio.google.com"
         )
 
 

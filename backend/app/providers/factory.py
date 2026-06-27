@@ -66,6 +66,7 @@ def get_llm_provider(settings: Settings | None = None) -> LLMProvider:
             api_key=settings.GROQ_API_KEY,
             model=settings.LLM_MODEL,
             temperature=settings.LLM_TEMPERATURE,
+            gemini_api_key=settings.GEMINI_API_KEY,
         )
 
     raise ValueError(f"LLM_PROVIDER desconocido: {provider!r}")
