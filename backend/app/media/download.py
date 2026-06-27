@@ -102,7 +102,7 @@ def _download_drive(file_id: str, dest_dir: str) -> str:
     dest_path = os.path.join(dest_dir, f"{uuid.uuid4()}.mp4")
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        result = gdown.download(id=file_id, output=dest_path, quiet=False, fuzzy=True)
+        result = gdown.download(id=file_id, output=dest_path, quiet=False)
     if not result or not os.path.exists(result) or os.path.getsize(result) == 0:
         raise RuntimeError(
             "No se pudo descargar el archivo de Drive. Verifica que el enlace "

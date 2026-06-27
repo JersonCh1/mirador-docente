@@ -27,9 +27,12 @@ export default function ChatAgent({ sessionId }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
   }, [messages, loading]);
 
   async function send() {
@@ -97,7 +100,7 @@ export default function ChatAgent({ sessionId }: Props) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {messages.map((msg, i) => (
           <div
             key={i}
@@ -143,7 +146,7 @@ export default function ChatAgent({ sessionId }: Props) {
           <p className="text-xs text-red-500 text-center">{error}</p>
         )}
 
-        <div ref={bottomRef} />
+        <div />
       </div>
 
       {/* Input */}

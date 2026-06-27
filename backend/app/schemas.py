@@ -11,9 +11,12 @@ de la grabación. Los `score` están en escala 1–4 (max_score = 4 en el MVP).
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal, Optional
+from typing import Annotated, Literal, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, BeforeValidator, Field, field_validator
+
+# Campos string generados por el LLM: tolera null → ""
+_Str = Annotated[str, BeforeValidator(lambda v: "" if v is None else v)]
 
 Platform = Literal["meet", "zoom", "teams", "upload"]
 Status = Literal[
@@ -93,7 +96,7 @@ class Metrics(BaseModel):
 # --------------------------------------------------------------------------- #
 class Evidence(BaseModel):
     timestamp: float
-    quote: str  # cita TEXTUAL EXACTA de un segmento de la transcripción
+    quote: _Str = ""  # cita TEXTUAL EXACTA de un segmento de la transcripción
     comment: Optional[str] = None
 
 
@@ -103,7 +106,7 @@ class Dimension(BaseModel):
     score: Optional[int] = None  # 1–4, null si no observable
     max_score: int = 4
     observable: bool = True
-    summary: str = ""
+    summary: _Str = ""
     evidence: list[Evidence] = Field(default_factory=list)
 
     @field_validator("score", mode="before")
@@ -123,22 +126,22 @@ class Framework(BaseModel):
 
 
 class Strength(BaseModel):
-    title: str
-    detail: str = ""
+    title: _Str = ""
+    detail: _Str = ""
     timestamp: Optional[float] = None
 
 
 class Improvement(BaseModel):
-    title: str
-    detail: str = ""
+    title: _Str = ""
+    detail: _Str = ""
     timestamp: Optional[float] = None
-    suggestion: str = ""
+    suggestion: _Str = ""
 
 
 class Deviation(BaseModel):
     start: float
     end: float
-    note: str
+    note: _Str = ""
 
 
 class ObjectiveAlignment(BaseModel):
