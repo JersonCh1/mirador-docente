@@ -33,6 +33,7 @@ from ..schemas import (
     StatusResponse,
 )
 from .deps import get_repo, get_settings
+from ..chat.agent import chat as agent_chat
 
 router = APIRouter()
 
@@ -195,6 +196,39 @@ async def retry_analysis(
 
     background.add_task(_bg)
     return StatusResponse(status="analyzing", progress=55, error=None)
+
+
+@router.post("/sessions/{session_id}/chat")
+def chat_session(
+    session_id: str,
+    payload: dict,
+    repo: SessionRepository = Depends(get_repo),
+    settings: Settings = Depends(get_settings),
+) -> dict:
+    """Agente conversacional sobre una sesión específica usando Groq tool use."""
+    row = repo.get(session_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Sesión no encontrada.")
+    if row.status != "ready":
+        raise HTTPException(status_code=400, detail="La sesión aún no tiene análisis completo.")
+
+    user_message = payload.get("message", "").strip()
+    if not user_message:
+        raise HTTPException(status_code=400, detail="El campo 'message' es obligatorio.")
+
+    history = payload.get("history", [])
+
+    session_data = repo.to_session_contract(row)
+
+    if not settings.GROQ_API_KEY:
+        raise HTTPException(status_code=503, detail="GROQ_API_KEY no configurada.")
+
+    try:
+        reply = agent_chat(session_data, user_message, history, settings.GROQ_API_KEY, settings.GEMINI_API_KEY)
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+    return {"reply": reply}
 
 
 def _parse_objectives(raw):

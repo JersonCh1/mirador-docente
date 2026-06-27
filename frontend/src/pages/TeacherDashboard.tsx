@@ -43,6 +43,7 @@ import TimestampChip, { formatTime } from "../components/TimestampChip";
 import Player, { type PlayerHandle } from "../components/Player";
 import Card from "../components/Card";
 import Badge from "../components/Badge";
+import ChatAgent from "../components/ChatAgent";
 
 export default function TeacherDashboard() {
   const { id = "" } = useParams();
@@ -362,6 +363,17 @@ export default function TeacherDashboard() {
         currentScore={frameworks[0]?.overall_score ?? null}
         sessionDate={metadata.date}
       />
+
+      {/* Chat con el agente */}
+      <section className="mb-10">
+        <div className="mb-4 flex items-center gap-2">
+          <MessageCircleQuestion className="h-5 w-5 text-evidence" aria-hidden="true" />
+          <h2 className="font-display text-2xl text-ink">
+            Pregúntale al coach
+          </h2>
+        </div>
+        <ChatAgent sessionId={session.session_id} />
+      </section>
     </div>
   );
 }

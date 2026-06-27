@@ -15,6 +15,7 @@ import type {
 import sampleSession from "../mocks/sample_session.json";
 
 const API_BASE = (import.meta.env.VITE_API_BASE ?? "").trim();
+export const apiBase = API_BASE ? `${API_BASE}/api` : "/api";
 const FORCE_MOCK = (import.meta.env.VITE_USE_MOCK ?? "").trim() === "1";
 
 /** El mock canónico, tipado contra el contrato. */

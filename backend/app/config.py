@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     ASSEMBLYAI_API_KEY: str = ""
     ANTHROPIC_API_KEY: str = ""
     GROQ_API_KEY: str = ""
+    GEMINI_API_KEY: str = ""  # aistudio.google.com — free tier, sin tarjeta
 
     # --- LLM ---
     LLM_MODEL: str = "claude-sonnet-4-6"
